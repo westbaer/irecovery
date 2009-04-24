@@ -242,10 +242,34 @@ void irecv_console() {
 		irecv_close(devPhone);
 }
 
+void irecv_sendcmd(char *cmd) {
+	int length;
+	char *sendbuf;
+	irecv_init(RECV_MODE);
+
+	if(devPhone == 0) {
+		printf("No iPhone/iPod found.\n");
+		exit(EXIT_FAILURE);
+	}
+	
+	sendbuf = malloc(160);
+	
+	length = (int)(((strlen(cmd)-1)/0x10)+1)*0x10;
+	memset(sendbuf, 0, length);
+	memcpy(sendbuf, cmd, strlen(cmd));
+	if(!usb_control_msg(devPhone, 0x40, 0, 0, 0, sendbuf, length, 1000)) {
+		printf("[!] %s", usb_strerror());
+	}
+	
+	free(sendbuf);
+	irecv_close(devPhone);	
+}
+
 int irecv_usage(void) {
 		printf("./iRecovery [args]\n");
 		printf("\t-f <file>\t\tupload file.\n");
 		printf("\t-r\t\t\treset usb.\n");
+		printf("\t-c \"command\"\t\tsends a single command.\n");
 		printf("\t-s\t\t\tstarts a shell.\n\n");
 }
 
@@ -269,6 +293,8 @@ int main(int argc, char *argv[]) {
 		} 
 
 		irecv_sendfile(argv[2]);
+	} else if(strcmp(argv[1], "-c") == 0) {
+		irecv_sendcmd(argv[2]);
 	} else if(strcmp(argv[1], "-s") == 0) {
 		irecv_console();
 	} else if(strcmp(argv[1], "-r") == 0) {
