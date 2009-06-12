@@ -21,3 +21,4 @@
 #define DFU1_MODE	0x1222
 #define DFU2_MODE	0x1227
 #define WTF_MODE	0x1227 
+
