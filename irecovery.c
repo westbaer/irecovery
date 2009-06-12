@@ -47,7 +47,7 @@ struct usb_dev_handle *irecv_init(int devid) {
 
 	for(bus = usb_get_busses(); bus; bus = bus->next) {
 		for(dev = bus->devices; dev; dev = dev->next) {
-			if(dev->descriptor.idVendor == 0x5AC && dev->descriptor.idProduct == devid) {
+			if(dev->descriptor.idVendor == VENDORID && dev->descriptor.idProduct == devid) {
 				devPhone = usb_open(dev);
 			}
 		}

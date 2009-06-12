@@ -16,7 +16,8 @@
   * along with this program.  If not, see <http://www.gnu.org/licenses/>.
   **/
 
-#define RECV_MODE	0x1281
+#define VENDORID	0x5AC
+#define RECV_MODE	0x1281 // Used for -s
 #define DFU1_MODE	0x1222
 #define DFU2_MODE	0x1227
 #define WTF_MODE	0x1227 
