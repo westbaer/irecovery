@@ -61,6 +61,11 @@ void irecv_close() {
 	usb_close(devPhone);
 }
 
+void irecv_quit() {
+	irecv_close();
+	exit(EXIT_SUCCESS);
+}
+
 void irecv_sendfile(char *filename) {
 	FILE *file;
 	int packets, len, last, i, a, c, sl;
@@ -164,6 +169,15 @@ void irecv_sendfile(char *filename) {
 	irecv_close(devPhone);
 }
 
+void irecv_parsecmd(char *cmd) {
+	if(strcmp("/sendfile", cmd) == 0) {
+		char *args = strtok(cmd, " ");
+		while(args != NULL) {
+			
+		}
+	}
+}
+
 void irecv_console() {
 		int ret, length, skip_recv, firstresp;
 		char *buf, *sendbuf, *cmd, *response;
@@ -227,12 +241,17 @@ void irecv_console() {
 			if(firstresp == 0) {
 				firstresp = 1;
 			}
+		
 
-			length = (int)(((strlen(cmd)-1)/0x10)+1)*0x10;
-			memset(sendbuf, 0, length);
-			memcpy(sendbuf, cmd, strlen(cmd));
-			if(!usb_control_msg(devPhone, 0x40, 0, 0, 0, sendbuf, length, 1000)) {
-				printf("[!] %s", usb_strerror());
+			if(cmd[0] == '/') {
+				irecv_parsecmd(cmd);
+			} else {
+				length = (int)(((strlen(cmd)-1)/0x10)+1)*0x10;
+				memset(sendbuf, 0, length);
+				memcpy(sendbuf, cmd, strlen(cmd));
+				if(!usb_control_msg(devPhone, 0x40, 0, 0, 0, sendbuf, length, 1000)) {
+					printf("[!] %s", usb_strerror());
+				}
 			}
 		} while(strcmp("/exit", cmd) != 0);
 		usb_release_interface(devPhone, 0);
@@ -265,6 +284,21 @@ void irecv_sendcmd(char *cmd) {
 	irecv_close(devPhone);	
 }
 
+void irecv_reset(void) {
+	devPhone = irecv_init(WTF_MODE);
+	if(devPhone == NULL) {
+		devPhone = irecv_init(RECV_MODE);
+		if(devPhone == NULL) {
+			printf("No iPhone/iPod found.\n");
+			exit(EXIT_FAILURE);
+		}
+	}
+
+	if(devPhone != NULL) {
+		usb_reset(devPhone);
+	}
+}
+
 int irecv_usage(void) {
 		printf("./iRecovery [args]\n");
 		printf("\t-f <file>\t\tupload file.\n");
@@ -286,6 +320,8 @@ int main(int argc, char *argv[]) {
 		exit(EXIT_FAILURE);
 	}
 	
+	signal(SIGINT, irecv_quit); // Close USB on ^C
+	
 	if(strcmp(argv[1], "-f") == 0) {
 		if(argc < 3) {
 			printf("No valid file set.\n");
@@ -298,7 +334,7 @@ int main(int argc, char *argv[]) {
 	} else if(strcmp(argv[1], "-s") == 0) {
 		irecv_console();
 	} else if(strcmp(argv[1], "-r") == 0) {
-		usb_reset(devPhone);
+		irecv_reset();
 	}
 	
 	return 0;

@@ -8,8 +8,8 @@ all:
 		@echo 'MAC OS X USERS: make macosx'
 	
 macosx:
-		$(CC) iRecovery.c -o iRecovery $(CFLAGS_OSX)
+		$(CC) irecovery.c -o irecovery $(CFLAGS_OSX)
 
 linux:
-		$(CC) iRecovery.c -o iRecovery $(CFLAGS_LNX)
+		$(CC) irecovery.c -o irecovery $(CFLAGS_LNX)
 
