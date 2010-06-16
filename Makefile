@@ -1,15 +1,21 @@
-CC = gcc
-CFLAGS_OSX = -lusb -framework CoreFoundation -framework IOKit -lreadline
-CFLAGS_LNX = -lusb -lreadline
-
-all:
-		@echo 'ERROR: no platform defined.'
-		@echo 'LINUX USERS: make linux'
-		@echo 'MAC OS X USERS: make macosx'
-	
-macosx:
-		$(CC) irecovery.c -o irecovery $(CFLAGS_OSX)
+all: linux
+	@echo "Please choose either macosx, linux, or windows"
 
 linux:
-		$(CC) irecovery.c -o irecovery $(CFLAGS_LNX)
+	gcc -o irecovery src/irecovery.c -g -I./include -L. -lirecovery -lreadline
 
+macosx:
+	gcc -o irecovery src/irecovery.c -I./include -L. -lirecovery -lreadline -lusb-1.0
+	
+windows:
+	gcc -o irecovery irecovery.c -I. -lirecovery -lreadline
+	
+install:
+	cp irecovery /usr/local/bin/irecovery
+
+uninstall:
+	rm -rf /usr/local/bin/irecovery
+		
+clean:
+	rm -rf irecovery 
+				
